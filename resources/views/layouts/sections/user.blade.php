@@ -23,7 +23,7 @@
 @else
     <div class="nav-item dropdown">
         <label for="ks-auth-trigger" class="btn btn-primary ks-rounded btn-sm mb-0 mr-2"><i class="la la-lock"></i> Войти</label>
-        <input type="checkbox" id="ks-auth-trigger" {{ (($errors->has('email') || $errors->has('password')) && !$errors->has('register'))? 'checked': '' }}>
+        <input type="checkbox" id="ks-auth-trigger" {{ (($errors->has('email') || $errors->has('password')) && !$errors->has('register')) || isset($login) ? 'checked': '' }}>
         <div class="auth-dropdown">
             <div class="card ks-panel ks-light ks-login">
                 <div class="card-block">

@@ -50,12 +50,3 @@
         </div>
     </div>
 </form>
-
-@push('scripts')
-    <script src="{{secure_asset('/libs/jquery-mask/jquery.mask.min.js')}}"></script>
-    <script type="text/javascript">
-        $(function () {
-            $('input[name="phone"]').mask('+7(999)999-9999');
-        });
-    </script>
-@endpush

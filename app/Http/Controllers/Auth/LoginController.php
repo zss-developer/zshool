@@ -28,15 +28,7 @@ class LoginController extends Controller
      */
     protected $redirectTo = '/home';
 
-    /**
-     * Show the application's login form.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function showLoginForm()
-    {
-        return redirect()->route('home',[true]);
-    }
+
 
     /**
      * Create a new controller instance.
@@ -48,6 +40,15 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
+    /**
+     * Show the application's login form.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function showLoginForm()
+    {
+        return redirect()->route('index.login');
+    }
 
     /**
      * Log the user out of the application.
@@ -61,6 +62,6 @@ class LoginController extends Controller
 
         $request->session()->invalidate();
 
-        return redirect('/home');
+        return redirect()->route('index');
     }
 }

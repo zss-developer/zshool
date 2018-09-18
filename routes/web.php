@@ -16,7 +16,7 @@
  * Namespaces indicate folder structure
  */
 
-Route::prefix('/')->middleware(['web'])->domain(env('APP_URL'))->group( function () {
+Route::prefix('/')->middleware(['web'])->group( function () {
     require (__DIR__ . '/common/auth.php');
 });
 
@@ -24,7 +24,7 @@ Route::prefix('/')->middleware(['web'])->domain(env('APP_URL'))->group( function
  * Public routes
  * Namespaces indicate folder structure
  */
-Route::prefix('/')->namespace('Frontend')->middleware(['web'])->domain(env('APP_URL'))->group( function () {
+Route::prefix('/')->namespace('Frontend')->middleware(['web'])->group( function () {
     require (__DIR__ . '/frontend/base.php');
     require (__DIR__ . '/frontend/storage.php');
     require (__DIR__ . '/frontend/user.php');

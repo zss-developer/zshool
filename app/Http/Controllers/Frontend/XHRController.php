@@ -92,7 +92,6 @@ class XHRController extends Controller
             // Если изображение успешно обновлено
             //
             if($image->save()) {
-                dd($image);
                 $store  = new Store;
 
                 $store->name = $saved['name'];
@@ -102,7 +101,6 @@ class XHRController extends Controller
                 if($store->save()) {
 
                     $user->image_id = $store->id;
-
                     if($user->save()) {
                         return response()->json(['status' => 'success', 'message' => 'picture successfully changed'], config('settings.xhr.code.success'));
                     }
