@@ -121,6 +121,19 @@ class UserController extends Controller
 
 		$user = Auth::user();
 
+        if ($request->isMethod('post')) {
+
+            $validator = Validator::make($request->all(), [
+                'notifications'     => 'nullable|array',
+                'notifications.*'   => 'nullable|in:subscription,reply,message',
+            ]);
+
+            if ($validator->fails()) return redirect()->back()->withErrors($validator);
+
+            $user->notifications = $request->get('notifications', []);
+            $user->save();
+        }
+
 		return response()->view('pages.frontend.user.index', [
 			'view' => 'pages.frontend.user.settings.notify',
 			'user' => $user

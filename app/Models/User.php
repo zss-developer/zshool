@@ -25,6 +25,10 @@ class User extends Authenticatable
         'phone', 'email', 'first_name', 'last_name', 'password', 'image_id', 'logged_in'
     ];
 
+    protected $casts = [
+        'notifications' => 'array',
+    ];
+
     /**
      * The functions that will be appended to attributes
      *
