@@ -61,7 +61,7 @@
                     <select name="country" id="country" class="form-control" value="{{old('country')}}">
                         <option value="">{{__('user.choose_a_country')}}...</option>
                         @foreach($countries as $country)
-                            <option value="{{$country->id}}" {{ (old('country') == $country->id || $user->location->parent_id == $country->id ? 'selected' : '') }}>{{$country->name}}</option>
+                            <option value="{{$country->id}}"  {{ old('country')? (old('country') == $country->id? 'selected' : '') :( $user->location ? ($user->location->parent_id == $country->id ? 'selected' : ''):'') }} >{{$country->name}}</option>
                         @endforeach
                     </select>
                 </div>
@@ -72,8 +72,14 @@
                 <div class="col-lg-12">
                     <label>{{ __('user.city') }}</label>
                     <select name="city" id="city" class="form-control {{ $errors->has('city') ? 'error' : '' }}">
-                        <option value="">{{__('business.choose_your_city')}}...</option>
-                        <option value="{{$user->location_id }}" selected="selected">{{$user->location->name}}</option>
+                        <option value="">{{__('user.choose_your_city')}}...</option>
+                        @if (old('location'))
+                            <option value="{{old('location.id') }}" selected>{{ old('location.name') }}</option>
+                        @else
+                            @if ($user->location)
+                                <option value="{{$user->location_id }}" selected>{{$user->location->name}}</option>
+                            @endif
+                        @endif
 
                     </select>
                     @if ($errors->has('city'))
@@ -81,6 +87,17 @@
                     @endif
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-lg-4">
+            <label>{{ __('user.work') }}</label>
+            <input type="text" class="form-control {{ $errors->has('work') ? 'form-control-danger' : '' }}" name="work" placeholder="" value="{{ (old('work')) ? old('work') : $user->work}}">
+        </div>
+        <div class="col-lg-4">
+            <label>{{ __('user.position') }}</label>
+            <input type="text" class="form-control {{ $errors->has('position') ? 'form-control-danger' : '' }}" name="position" placeholder="" value="{{ (old('position')) ? old('position') : $user->position}}">
         </div>
     </div>
 
@@ -99,7 +116,6 @@
 
 @push('scripts')
     <script src="{{asset('/libs/select2/js/select2.min.js')}}"></script>
-    <script src="{{asset('/libs/jquery-mask/jquery.mask.min.js')}}"></script>
     <script type="text/javascript">
         $(function () {
             $('select').select2({
@@ -120,6 +136,7 @@
                     },
                     processResults: function (data) {
                         if (data.message) {
+                            console.log(data);
                             return {
                                 results: [
                                     {

@@ -140,6 +140,7 @@
 <script src="{{asset('/libs/jscrollpane/jquery.jscrollpane.min.js')}}"></script>
 <script src="{{asset('/libs/jscrollpane/jquery.mousewheel.min.js')}}"></script>
 <script src="{{asset('/libs/noty/noty.min.js')}}"></script>
+<script src="{{asset('/libs/jquery-mask/jquery.mask.min.js')}}"></script>
 <!-- END PAGE LEVEL PLUGINS -->
 
 <!-- BEGIN THEME LAYOUT SCRIPTS -->

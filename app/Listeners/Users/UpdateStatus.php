@@ -3,6 +3,7 @@
 namespace App\Listeners\Users;
 
 use Illuminate\Auth\Events\Login;
+use Carbon\Carbon;
 
 class UpdateStatus
 {
@@ -24,7 +25,7 @@ class UpdateStatus
      */
     public function handle(Login $event)
     {
-        /*$event->user->logged_in = now();
-        $event->user->save();*/
+        $event->user->logged_in = Carbon::now();
+        $event->user->save();
     }
 }

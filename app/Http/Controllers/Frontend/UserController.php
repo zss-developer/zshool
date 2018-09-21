@@ -83,14 +83,26 @@ class UserController extends Controller
             // Для обработки и сохранения
             $request->merge(['phone' => str_replace('-', '', filter_var($request->get('phone'), FILTER_SANITIZE_NUMBER_INT))]);
 
-            $this->validate($request, [
+            $validator = Validator::make($request->all(), [
                 'first_name' => 'required|max:255',
                 'last_name'  => 'required|max:35',
-                'city'   => 'required|numeric|exists:locations,id',
+                'city'       => 'nullable|numeric|exists:locations,id',
                 'phone'      => 'nullable|max:19|unique:users,phone,'.$user->id,
                 'email'      => 'required|max:35|email|unique:users,email,'.$user->id,
                 'about'      => 'nullable|max:500',
+                'work'       => 'nullable|max:191',
+                'position'   => 'nullable|max:191',
             ]);
+
+            if ($validator->fails()){
+                if ($request->input('city')) {
+                    $input = $request->input();
+                    $input['location'] = Location::where('id', $request->input('city'))->first();
+                    return redirect()->back()->withErrors($validator)->withInput($input);
+                }
+                return redirect()->back()->withErrors($validator)->withInput();
+
+            }
 
             $user->first_name  = $request->get('first_name');
             $user->last_name   = $request->get('last_name');
@@ -98,6 +110,8 @@ class UserController extends Controller
             $user->phone       = $request->get('phone');
             $user->email       = $request->get('email');
             $user->about       = $request->get('about');
+            $user->work        = $request->get('work');
+            $user->position     = $request->get('position');
 
             $user->save();
 

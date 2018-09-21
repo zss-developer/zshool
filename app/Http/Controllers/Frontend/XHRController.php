@@ -28,7 +28,7 @@ class XHRController extends Controller
         if ($validator->fails()) return response()->json(['status' => 'error', 'messages' => $validator->messages()], config('settings.xhr.code.error'));
 
         if ($request->get('country_id') == 0) {
-            return response()->json(['status' => 'success', 'message' =>__('errors.choose_country') ], config('settings.xhr.code.success'));
+            return response()->json(['status' => 'success', 'message' =>'Необходимо выбрать страну' ], config('settings.xhr.code.success'));
         }
 
         $country = Location::where('id',$request->get('country_id'))->first();
