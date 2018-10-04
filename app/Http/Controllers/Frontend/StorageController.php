@@ -32,4 +32,12 @@ class StorageController extends Controller
         ]);
 
     }
+
+    public function storageUpload(Request $request)
+    {
+        $subjects = Subject::all();
+        return response()->view('pages.frontend.storage.upload', [
+            'subjects' => $subjects,
+        ]);
+    }
 }
