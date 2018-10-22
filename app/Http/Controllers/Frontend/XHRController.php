@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Models\Store;
+use App\Models\TemporaryStore;
 use App\Models\User;
 use App\Models\Location;
 use Illuminate\Http\Request;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Controller;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Jenssegers\Date\Date;
 
 class XHRController extends Controller
 {
@@ -109,6 +111,47 @@ class XHRController extends Controller
         }
 
         return response()->json(['status' => 'error', 'message' => 'error while saving picture'], config('settings.xhr.code.error'));
+    }
+
+    public function uploadFile(Request $request)
+    {
+        $user   = Auth::user();
+
+        $validator = Validator::make($request->all(), [
+            'files.*' => 'required|max:10000',
+        ]);
+
+        if ($validator->fails()) return response()->json(['status' => 'error', 'messages' => $validator->messages()], config('settings.xhr.code.error'));
+
+        // Получаем файл
+        //
+        $files  = $request->file('files');
+        $result = [];
+
+        foreach ($files as $file) {
+            $saved = store($file,'storage/files/'. date("Y") . '/' . date("m"));
+
+            $store  = new TemporaryStore();
+
+            $store->user_id = $user->id;
+            $store->name    = $saved['name'];
+            $store->mime    = $saved['mime'];
+            $store->path    = $saved['path'];
+            if($store->save()) {
+                Date::setLocale('ru');
+                $result[] = [
+                    'id'            => $store->id,
+                    'name'          => $file->getClientOriginalName(),
+                    'size'          => $file->getClientSize(),
+                    'uploaded'      => Date::parse($store->created_at)->format('j F Y H:i:s'),
+                ];
+            }
+        }
+
+
+
+            return response()->json(['status' => 'success', 'files' =>$result], config('settings.xhr.code.success'));
+
     }
 
 }

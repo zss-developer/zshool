@@ -28,4 +28,14 @@ Route::prefix('/xhr')->middleware('auth')->group( function() {
 
     });
 
+    Route::prefix('/storage')->group( function () {
+
+       Route::prefix('/upload')->group( function() {
+
+           Route::name('xhr.storage.uploadFile')->post('/file', 'XHRController@uploadFile');
+
+       });
+
+    });
+
 });

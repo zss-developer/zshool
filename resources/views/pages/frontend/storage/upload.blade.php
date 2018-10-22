@@ -1,10 +1,12 @@
 @extends('layouts.common')
 
 @push('styles')
-    <link rel="stylesheet" type="text/css" href="{{asset('/libs/select2/css/select2.min.css')}}">
-    <link rel="stylesheet" type="text/css" href="{{asset('/libs/select2/css/select2.custom.min.css')}}">
-    <link rel="stylesheet" type="text/css" href="{{asset('/css/styles/widgets/upload.css')}}">
-    <link rel="stylesheet" type="text/css" href="{{url('/libs/trumbowyg/ui/trumbowyg.min.css') }}"> <!-- original -->
+    <link rel="stylesheet" type="text/css" href="{{ asset('/libs/select2/css/select2.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('/libs/select2/css/select2.custom.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('/css/styles/widgets/upload.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('/libs/trumbowyg/ui/trumbowyg.min.css') }}"> <!-- original -->
+    <link rel="stylesheet" type="text/css" href="{{ asset('libs/sweetalert/sweetalert.css') }}"> <!-- original -->
+    <link rel="stylesheet" type="text/css" href="{{ asset('/libs/sweetalert/sweetalert.min.css') }}"> <!
     <style>
         textarea {
             z-index: 100;
@@ -29,7 +31,29 @@
 
     <div class="ks-page-content">
         <div class="ks-page-content-body">
-            <form class="ks-form container-fluid" method="POST">
+            <form class="ks-form container-fluid pb-0">
+                <div class="form-group">
+                    <div id="ks-attach-files-widget" class="card panel ks-attach-files-widget">
+                        <h5 class="card-header">Прикрепленные файлы</h5>
+                        <div class="card-block">
+                            <ul class="ks-uploading-files"></ul>
+                            <ul class="ks-uploaded-files"></ul>
+                            <div id="ks-file-upload-dropzone" class="ks-upload">
+                                <span class="ks-icon la la-cloud-upload"></span>
+                                <span class="ks-text">Перетащите файлы сюда, чтобы их прикрепить, или</span>
+                                <span class="ks-upload-btn">
+                                    <button class="btn btn-primary ks-btn-file">
+                                        <span class="la la-cloud-upload ks-icon"></span>
+                                        <span class="ks-text">Выберите файл</span>
+                                        <input id="ks-file-upload-widget-input" type="file" name="files[]" data-url="{{ route('xhr.storage.uploadFile') }}" multiple>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <form class="ks-form container-fluid pt-0" method="POST">
                 {{ csrf_field() }}
 
                 @if (count($errors) > 0)
@@ -63,48 +87,12 @@
 
                 <div class="form-group row ml-0 mr-0 {{ $errors->has('subject') ? 'has-error' : '' }}">
                     <label class="form-control-label label-required col-md-12" for="subject">Предмет</label>
-                    <select name="section" class="form-control col-md-5">
+                    <select name="subject" class="form-control col-md-5">
                         <option value="">Выберите предмет...</option>
                         @foreach($subjects as $item)
                             <option value="{{ $item->id }}" {{ old('subject') == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
                         @endforeach
                     </select>
-                </div>
-
-                <div class="form-group">
-                    <div id="ks-attach-files-widget" class="card panel ks-attach-files-widget">
-                        <h5 class="card-header">Прикрепленные файлы</h5>
-                        <div class="card-block">
-                            <ul class="ks-uploading-files"></ul>
-                            <ul class="ks-uploaded-files">
-                                <li>
-                                    <span class="ks-icon la la-file-pdf-o ks-color-danger"></span>
-                                    <div class="ks-body">
-                                        <div class="ks-header">
-                                            <span class="ks-filename">file.pdf</span>
-                                        </div>
-                                        <div class="ks-description">
-                                            Uploaded by Administrator on April 21, 2016 at 10:28 AM
-                                        </div>
-                                    </div>
-                                    <div class="ks-remove">
-                                        <a class="ks-icon la la-trash"></a>
-                                    </div>
-                                </li>
-                            </ul>
-                            <div id="ks-file-upload-dropzone" class="ks-upload">
-                                <span class="ks-icon la la-cloud-upload"></span>
-                                <span class="ks-text">Перетащите файлы сюда, чтобы их прикрепить, или</span>
-                                <span class="ks-upload-btn">
-                                    <button class="btn btn-primary ks-btn-file">
-                                        <span class="la la-cloud-upload ks-icon"></span>
-                                        <span class="ks-text">Выберите файл</span>
-                                        <input id="ks-file-upload-widget-input" type="file" name="files[]" data-url="" multiple>
-                                    </button>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="form-group">
@@ -139,8 +127,12 @@
     <script src="{{asset('/libs/jquery-file-upload/js/jquery.fileupload-audio.js')}}"></script>
     <script src="{{asset('/libs/jquery-file-upload/js/jquery.fileupload-video.js')}}"></script>
     <script src="{{asset('/libs/jquery-file-upload/js/jquery.fileupload-validate.js')}}"></script>
+    <script src="{{asset('/libs/sweetalert/sweetalert.min.js')}}"></script>
 
     <script type="application/javascript">
+
+        var file_id=[];
+
         (function ($) {
             $(document).ready(function() {
 
@@ -187,19 +179,13 @@
                 }
 
                 $('#ks-file-upload-widget-input').fileupload({
-                    dropZone: $('#ks-file-upload-dropzone'),
                     autoUpload: false,
-                    multipart: true,
-                    dataType: 'json',
-                    singleFileUploads: false,
-                    limitMultiFileUploads: 5,
-                    limitMultiFileUploadSize: 20000000,
                     add: function (e, data) {
                         var jqXHR;
 
                         $.each(data.files, function (index, file) {
                             var fileUploadInfo = '<li id="file-uploading-' + file.lastModified + '"> \
-                            <span class="ks-icon la la-file-word-o ks-color-info"></span> \
+                            <span class="ks-icon la la-file-pdf-o ks-color-info"></span> \
                             <div class="ks-body"> \
                             <div class="ks-header"> \
                             <span class="ks-filename">' + file.name + '</span> \
@@ -226,8 +212,11 @@
                         });
 
                         data.process().done(function () {
-                            jqXHR = data.submit();
+                            data.submit();
                         });
+                    },
+                    submit: function (e, data) {
+                        data.formData = {'_token' : '{{ csrf_token() }}'};
                     },
                     progress: function (e, data) {
                         var progress = parseInt(data.loaded / data.total * 100, 10);
@@ -242,68 +231,57 @@
                         $('#' + id).find('.ks-description').text(uploadedBytes + ' of ' + size);
                     },
                     done: function (e, data) {
-                        $.each(data.files, function (index, file) {
-                            var id = 'file-uploading-' + data.files[0].lastModified;
-                            $('#' + id).remove();
+                        $.each(data.result.files, function (index, file) {
+                            $.each(data.files,function (item_index,item) {
+                               if (item.name === file.name) {
+                                   var id = 'file-uploading-' + item.lastModified;
+                                   $('#' + id).remove();
+                               }
+                            });
+
+                            var uploadedFileInfo = '<li data-id="' + file.id + '"> \
+                                <span class="ks-icon la la-file-pdf-o ks-color-danger"></span> \
+                                <div class="ks-body"> \
+                                <div class="ks-header"> \
+                                <span class="ks-filename">' + file.name + '</span> \
+                                </div> \
+                                <div class="ks-description"> \
+                                    Загружено '+ file.uploaded +' \
+                                </div> \
+                                </div> \
+                                <div class="ks-remove"> \
+                                <a class="ks-icon la la-trash"></a> \
+                                </div> \
+                                </li>';
+                            $(uploadedFileInfo).appendTo($('#ks-attach-files-widget .ks-uploaded-files'));
+
+                           /* new Noty({
+                                text: 'Файл ' + file.name + ' успешно загружен!',
+                                type   : 'success',
+                                theme  : 'mint',
+                                layout : 'topRight',
+                                timeout: 2000
+                            }).show();*/
                         });
-
-                        var uploadedFileInfo = '<li> \
-                            <span class="ks-icon la la-file-pdf-o ks-color-danger"></span> \
-                            <div class="ks-body"> \
-                            <div class="ks-header"> \
-                            <span class="ks-filename">' + data.result.file.name + '</span> \
-                            </div> \
-                            <div class="ks-description"> \
-                                '+ data.result.file.uploadedBy +' \
-                            </div> \
-                            </div> \
-                            <div class="ks-remove"> \
-                            <a class="ks-icon la la-trash"></a> \
-                            </div> \
-                            </li>';
-                        $(uploadedFileInfo).appendTo($('#ks-attach-files-widget .ks-uploaded-files'));
-
-                        new Noty({
-                            text: 'File ' + data.result.file.name + ' has been uploaded successfully!',
-                            type   : 'success',
-                            theme  : 'mint',
-                            layout : 'topRight',
-                            timeout: 2000
-                        }).show();
                     },
-                    fail: function (e, data) {
-                        $.each(data.files, function (index, file) {
-                            var id = 'file-uploading-' + data.files[0].lastModified;
-                            $('#' + id).addClass('ks-file-uploading-error');
-                        });
-
-                        new Noty({
-                            text: 'Uploading error! Please try again later.',
-                            type   : 'error',
-                            theme  : 'mint',
-                            layout : 'topRight',
-                            timeout: 2000
-                        }).show();
-                    }
                 });
                 $(document).on('click', '#ks-attach-files-widget .ks-uploaded-files .ks-remove', function () {
                     var file = $(this).closest('li');
 
-                    $.confirm({
-                        title: 'Danger!',
-                        content: 'Are you sure you want to remove this file?',
-                        type: 'danger',
-                        buttons: {
-                            confirm: {
-                                text: 'Yes, remove',
-                                btnClass: 'btn-danger',
-                                action: function() {
-                                    file.remove();
-                                }
-                            },
-                            cancel: function () {}
-                        }
-                    });
+                    swal({
+                            title: 'Внимание!',
+                            text:  'Вы действительно хотите удалить файл?',
+                            type: 'warning',
+                            showCancelButton: true,
+                            confirmButtonClass: "btn-danger",
+                            confirmButtonText: "Да, удалить",
+                            cancelButtonText: "Отмена",
+                            closeOnConfirm: true,
+                        },
+                        function(){
+                            file.remove();
+                            /*swal("Deleted!", "Your imaginary file has been deleted.", "success");*/
+                        });
                 });
 
                 // DropZone implementation
