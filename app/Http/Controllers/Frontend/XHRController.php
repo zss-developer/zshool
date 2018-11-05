@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Location;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -152,6 +153,26 @@ class XHRController extends Controller
 
             return response()->json(['status' => 'success', 'files' =>$result], config('settings.xhr.code.success'));
 
+    }
+
+    public function deleteFile(Request $request)
+    {
+
+       $file = TemporaryStore::where('id',$request->get('id'))
+           ->where('user_id', Auth::user()->id)
+           ->first();
+
+       if($file) {
+
+           if (file_exists(storage_path('app/public/'.$file->path))) {
+               unlink(storage_path('app/public/'.$file->path));
+               $file->delete();
+               return response()->json(['status' => 'success', 'message' =>'file successfully removed'], config('settings.xhr.code.success'));
+           }
+           return response()->json(['status' => 'success', 'message' =>'file already removed'], config('settings.xhr.code.success'));
+       }
+
+        return response()->json(['status' => 'error', 'message' => 'file not found'], config('settings.xhr.code.error'));
     }
 
 }

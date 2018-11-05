@@ -36,7 +36,27 @@
                     <div id="ks-attach-files-widget" class="card panel ks-attach-files-widget">
                         <h5 class="card-header">Прикрепленные файлы</h5>
                         <div class="card-block">
-                            <ul class="ks-uploading-files"></ul>
+                            <ul class="ks-uploading-files">
+                                <li :id="'file-uploading-' + index" v-for="(file,index) in uploading_files">
+                                    <span class="ks-icon la la-file-o ks-color-info"></span>
+                                    <div class="ks-body">
+                                        <div class="ks-header">
+                                            <span class="ks-filename">@{{ file.name }}</span>
+                                        </div>
+                                        <div class="ks-progress">
+                                            <div class="progress ks-progress-sm">
+                                                <div class="progress-bar progress-bar-striped bg-info" role="progressbar" :style="'width: '+ file.progress+'%'" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <div class="ks-description">
+                                                Загружено @{{ stringSize(file.uploaded) }} из @{{ stringSize(file.size) }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="ks-cancel" @click="cancelClick(file)">
+                                        <a class="ks-icon la la-close"></a>
+                                    </div>
+                                </li>
+                            </ul>
                             <ul class="ks-uploaded-files"></ul>
                             <div id="ks-file-upload-dropzone" class="ks-upload">
                                 <span class="ks-icon la la-cloud-upload"></span>
@@ -55,6 +75,8 @@
             </form>
             <form class="ks-form container-fluid pt-0" method="POST">
                 {{ csrf_field() }}
+
+                <input type="hidden" id="files" name="files" value="{{ old('files') }}">
 
                 @if (count($errors) > 0)
                     <div class="alert alert-danger ks-active-border" role="alert">
@@ -131,7 +153,42 @@
 
     <script type="application/javascript">
 
-        var file_id=[];
+        var widget = new Vue({
+           el: '#ks-attach-files-widget',
+           data: {
+               uploading_files: [],
+               uploaded_files: [],
+           },
+            methods: {
+                stringSize: function (bytes) {
+                    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+                    if (bytes == 0) return '0 Byte';
+                    var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+                    return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+                },
+                uploadFile: function(file) {
+                    this.uploading_files.push(file);
+                },
+                updateFile: function(key,value) {
+                    $.each(this.uploading_files,function (inde,item) {
+                       if (item.key == key) {
+                           item.uploaded = value;
+                           item.progress = parseInt(item.uploaded / item.size * 100, 10);
+                           return false;
+                       }
+                    });
+                },
+                completeFile: function(key, file) {
+
+                },
+
+                removeFile: function (file) {
+                },
+            },
+
+        });
+
+        var uploaded_files=[];
 
         (function ($) {
             $(document).ready(function() {
@@ -171,12 +228,7 @@
                     minimumResultsForSearch: Infinity
                 });
 
-                function bytesToSize(bytes) {
-                    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-                    if (bytes == 0) return '0 Byte';
-                    var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
-                    return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
-                }
+
 
                 $('#ks-file-upload-widget-input').fileupload({
                     autoUpload: false,
@@ -184,42 +236,29 @@
                         var jqXHR;
 
                         $.each(data.files, function (index, file) {
-                            var fileUploadInfo = '<li id="file-uploading-' + file.lastModified + '"> \
-                            <span class="ks-icon la la-file-pdf-o ks-color-info"></span> \
-                            <div class="ks-body"> \
-                            <div class="ks-header"> \
-                            <span class="ks-filename">' + file.name + '</span> \
-                            </div> \
-                            <div class="ks-progress"> \
-                            <div class="progress ks-progress-sm"> \
-                            <div class="progress-bar progress-bar-striped bg-info" role="progressbar" style="width: 0" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div> \
-                            </div> \
-                            <div class="ks-description"> \
-                               \
-                            </div> \
-                            </div> \
-                            </div> \
-                            <div class="ks-cancel"> \
-                            <a class="ks-icon la la-close"></a> \
-                            </div> \
-                            </li>';
-                            data.context = $(fileUploadInfo).appendTo($('#ks-attach-files-widget .ks-uploading-files'));
 
-                            $(data.context).find(".ks-cancel").click(function() {
-                                jqXHR.abort();
-                                data.context.remove();
-                            })
+                            var item = {
+                                'name'     :  file.name,
+                                'size'     : file.size,
+                                'uploaded' : 0,
+                                'progress' : 0,
+                                'key'      : file.lastModified,
+                            };
+
+                            widget.uploadFile(item);
+
                         });
 
                         data.process().done(function () {
-                            data.submit();
+                            jqXHR = data.submit();
                         });
                     },
                     submit: function (e, data) {
                         data.formData = {'_token' : '{{ csrf_token() }}'};
                     },
                     progress: function (e, data) {
-                        var progress = parseInt(data.loaded / data.total * 100, 10);
+                        widget.updateFile(data.files[0].lastModified, data.loaded);
+                        /*var progress = parseInt(data.loaded / data.total * 100, 10);
                         var size = data.files[0].size;
                         var uploadedBytes = (size / 100) * progress;
                         var id = 'file-uploading-' + data.files[0].lastModified;
@@ -228,7 +267,7 @@
                         uploadedBytes = bytesToSize(uploadedBytes);
 
                         $('#' + id).find('.progress-bar').css('width', progress + '%');
-                        $('#' + id).find('.ks-description').text(uploadedBytes + ' of ' + size);
+                        $('#' + id).find('.ks-description').text(uploadedBytes + ' of ' + size);*/
                     },
                     done: function (e, data) {
                         $.each(data.result.files, function (index, file) {
@@ -238,9 +277,14 @@
                                    $('#' + id).remove();
                                }
                             });
+                            if(uploaded_files.length == 5) {
+                                swal("Внимание!", "Загрузить можно не более 5-ти файлов", "warning");
+                            }
+                            uploaded_files.push(file.id);
+                            $('#files').val(JSON.stringify(uploaded_files));
 
                             var uploadedFileInfo = '<li data-id="' + file.id + '"> \
-                                <span class="ks-icon la la-file-pdf-o ks-color-danger"></span> \
+                                <span class="ks-icon la la-file-o ks-color-danger"></span> \
                                 <div class="ks-body"> \
                                 <div class="ks-header"> \
                                 <span class="ks-filename">' + file.name + '</span> \
@@ -279,8 +323,24 @@
                             closeOnConfirm: true,
                         },
                         function(){
-                            file.remove();
-                            /*swal("Deleted!", "Your imaginary file has been deleted.", "success");*/
+                            $.ajax({
+                                type:'POST',
+                                url: '{{ route('xhr.storage.deleteFile') }}',
+                                data:{
+                                    '_token': '{{ csrf_token() }}',
+                                    'id': file.data('id'),
+                                },
+                                dataType: 'json',
+                                success:function(data){
+                                    uploaded_files.splice(uploaded_files.indexOf(file.data('id')),1);
+                                    $('#files').val(JSON.stringify(uploaded_files));
+                                    file.remove();
+                                },
+                                error: function(data){
+                                    swal("Упс!", "Не удалось удалить файл, попробуйте позднее", "warning");
+                                }
+                            });
+
                         });
                 });
 

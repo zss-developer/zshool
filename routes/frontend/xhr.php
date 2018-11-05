@@ -34,6 +34,8 @@ Route::prefix('/xhr')->middleware('auth')->group( function() {
 
            Route::name('xhr.storage.uploadFile')->post('/file', 'XHRController@uploadFile');
 
+           Route::name('xhr.storage.deleteFile')->post('/delete', 'XHRController@deleteFile');
+
        });
 
     });

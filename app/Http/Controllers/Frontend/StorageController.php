@@ -36,6 +36,25 @@ class StorageController extends Controller
     public function storageUpload(Request $request)
     {
         $subjects = Subject::all();
+
+        if ($request->isMethod('post')) {
+            dd($request->all());
+
+            $validator = Validator::make($request->all(), [
+                'header'        => 'required|string|max:191',
+                'section'       => 'required|exists:storage_sections,id',
+                'subject'       => 'required|exists:subjects,id',
+                'description'   => 'nullable',
+                'files'         => 'required',
+            ]);
+
+            if ($validator->fails()){
+                return redirect()->back()->withErrors($validator)->withInput();
+
+            }
+
+        }
+
         return response()->view('pages.frontend.storage.upload', [
             'subjects' => $subjects,
         ]);
