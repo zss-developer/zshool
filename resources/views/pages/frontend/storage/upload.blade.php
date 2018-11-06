@@ -6,9 +6,9 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('/css/styles/widgets/upload.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('/libs/trumbowyg/ui/trumbowyg.min.css') }}"> <!-- original -->
     <link rel="stylesheet" type="text/css" href="{{ asset('libs/sweetalert/sweetalert.css') }}"> <!-- original -->
-    <link rel="stylesheet" type="text/css" href="{{ asset('/libs/sweetalert/sweetalert.min.css') }}"> <!
+    <link rel="stylesheet" type="text/css" href="{{ asset('/libs/sweetalert/sweetalert.min.css') }}">
     <style>
-        textarea {
+        .textarea {
             z-index: 100;
         }
     </style>
@@ -52,12 +52,27 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="ks-cancel" @click="cancelClick(file)">
+                                    <div class="ks-cancel" @click="cancelFile(index)">
                                         <a class="ks-icon la la-close"></a>
                                     </div>
                                 </li>
                             </ul>
-                            <ul class="ks-uploaded-files"></ul>
+                            <ul class="ks-uploaded-files">
+                                <li :id="'file-uploaded-' + index" v-for="(file,index) in uploaded_files">
+                                    <span class="ks-icon la la-file-o ks-color-danger"></span>
+                                    <div class="ks-body">
+                                        <div class="ks-header">
+                                            <span class="ks-filename">@{{ file.name }}</span>
+                                        </div>
+                                        <div class="ks-description">
+                                            Загружено @{{ file.uploaded  }}
+                                        </div>
+                                    </div>
+                                    <div class="ks-remove" @click="removeFile(index)">
+                                        <a class="ks-icon la la-trash"></a>
+                                    </div>
+                                </li>
+                            </ul>
                             <div id="ks-file-upload-dropzone" class="ks-upload">
                                 <span class="ks-icon la la-cloud-upload"></span>
                                 <span class="ks-text">Перетащите файлы сюда, чтобы их прикрепить, или</span>
@@ -76,7 +91,7 @@
             <form class="ks-form container-fluid pt-0" method="POST">
                 {{ csrf_field() }}
 
-                <input type="hidden" id="files" name="files" value="{{ old('files') }}">
+                <input type="hidden" name="files[]" :value="file.id" v-for="file in uploaded_files">
 
                 @if (count($errors) > 0)
                     <div class="alert alert-danger ks-active-border" role="alert">
@@ -154,11 +169,16 @@
     <script type="application/javascript">
 
         var widget = new Vue({
-           el: '#ks-attach-files-widget',
+           el: '.ks-page-content',
            data: {
                uploading_files: [],
                uploaded_files: [],
            },
+            watch: {
+               uploaded_files: function () {
+                   $('#files').val(JSON.stringify(this.uploaded_files.map(a => a.id)));
+               }
+            },
             methods: {
                 stringSize: function (bytes) {
                     var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -170,7 +190,7 @@
                     this.uploading_files.push(file);
                 },
                 updateFile: function(key,value) {
-                    $.each(this.uploading_files,function (inde,item) {
+                    $.each(this.uploading_files,function (index,item) {
                        if (item.key == key) {
                            item.uploaded = value;
                            item.progress = parseInt(item.uploaded / item.size * 100, 10);
@@ -178,17 +198,65 @@
                        }
                     });
                 },
+                setJqXHR: function (key, jqXHR) {
+                    $.each(this.uploading_files,function (index,item) {
+                        if (item.key == key) {
+                            item.jqXHR = jqXHR;
+                            return false;
+                        }
+                    });
+                },
                 completeFile: function(key, file) {
-
+                    var self = this;
+                    $.each(this.uploading_files,function (index,item) {
+                        if (item.key == key) {
+                            self.uploading_files.splice(index,1);
+                            return false;
+                        }
+                    });
+                    this.uploaded_files.push(file);
                 },
-
-                removeFile: function (file) {
+                cancelFile: function (index) {
+                    if (this.uploading_files[index].jqXHR != null) {
+                        this.uploading_files[index].jqXHR.abort();
+                    }
+                    this.uploading_files.splice(index, 1);
                 },
+                removeFile: function (index) {
+                    var self = this;
+                    swal({
+                            title: 'Внимание!',
+                            text:  'Вы действительно хотите удалить файл?',
+                            type: 'warning',
+                            showCancelButton: true,
+                            confirmButtonClass: "btn-danger",
+                            confirmButtonText: "Да, удалить",
+                            cancelButtonText: "Отмена",
+                            closeOnConfirm: true,
+                        },
+                        function(){
+                            $.ajax({
+                                type:'POST',
+                                url: '{{ route('xhr.storage.deleteFile') }}',
+                                data:{
+                                    '_token': '{{ csrf_token() }}',
+                                    'id': self.uploaded_files[index].id,
+                                },
+                                dataType: 'json',
+                                success:function(data){
+                                    self.uploaded_files.splice(index, 1);
+                                },
+                                error: function(data){
+                                    swal("Упс!", "Не удалось удалить файл, попробуйте позднее", "warning");
+                                }
+                            });
+
+                        });
+                }
+
             },
 
         });
-
-        var uploaded_files=[];
 
         (function ($) {
             $(document).ready(function() {
@@ -233,7 +301,6 @@
                 $('#ks-file-upload-widget-input').fileupload({
                     autoUpload: false,
                     add: function (e, data) {
-                        var jqXHR;
 
                         $.each(data.files, function (index, file) {
 
@@ -243,6 +310,7 @@
                                 'uploaded' : 0,
                                 'progress' : 0,
                                 'key'      : file.lastModified,
+                                'jqXHR'    : null
                             };
 
                             widget.uploadFile(item);
@@ -250,7 +318,8 @@
                         });
 
                         data.process().done(function () {
-                            jqXHR = data.submit();
+                            var jqXHR = data.submit();
+                            widget.setJqXHR(data.files[0].lastModified, jqXHR);
                         });
                     },
                     submit: function (e, data) {
@@ -258,90 +327,19 @@
                     },
                     progress: function (e, data) {
                         widget.updateFile(data.files[0].lastModified, data.loaded);
-                        /*var progress = parseInt(data.loaded / data.total * 100, 10);
-                        var size = data.files[0].size;
-                        var uploadedBytes = (size / 100) * progress;
-                        var id = 'file-uploading-' + data.files[0].lastModified;
-
-                        size = bytesToSize(size);
-                        uploadedBytes = bytesToSize(uploadedBytes);
-
-                        $('#' + id).find('.progress-bar').css('width', progress + '%');
-                        $('#' + id).find('.ks-description').text(uploadedBytes + ' of ' + size);*/
                     },
                     done: function (e, data) {
                         $.each(data.result.files, function (index, file) {
                             $.each(data.files,function (item_index,item) {
                                if (item.name === file.name) {
-                                   var id = 'file-uploading-' + item.lastModified;
-                                   $('#' + id).remove();
+                                   widget.completeFile(item.lastModified, file);
                                }
                             });
-                            if(uploaded_files.length == 5) {
+                            /*if(uploaded_files.length == 5) {
                                 swal("Внимание!", "Загрузить можно не более 5-ти файлов", "warning");
-                            }
-                            uploaded_files.push(file.id);
-                            $('#files').val(JSON.stringify(uploaded_files));
-
-                            var uploadedFileInfo = '<li data-id="' + file.id + '"> \
-                                <span class="ks-icon la la-file-o ks-color-danger"></span> \
-                                <div class="ks-body"> \
-                                <div class="ks-header"> \
-                                <span class="ks-filename">' + file.name + '</span> \
-                                </div> \
-                                <div class="ks-description"> \
-                                    Загружено '+ file.uploaded +' \
-                                </div> \
-                                </div> \
-                                <div class="ks-remove"> \
-                                <a class="ks-icon la la-trash"></a> \
-                                </div> \
-                                </li>';
-                            $(uploadedFileInfo).appendTo($('#ks-attach-files-widget .ks-uploaded-files'));
-
-                           /* new Noty({
-                                text: 'Файл ' + file.name + ' успешно загружен!',
-                                type   : 'success',
-                                theme  : 'mint',
-                                layout : 'topRight',
-                                timeout: 2000
-                            }).show();*/
+                            }*/
                         });
                     },
-                });
-                $(document).on('click', '#ks-attach-files-widget .ks-uploaded-files .ks-remove', function () {
-                    var file = $(this).closest('li');
-
-                    swal({
-                            title: 'Внимание!',
-                            text:  'Вы действительно хотите удалить файл?',
-                            type: 'warning',
-                            showCancelButton: true,
-                            confirmButtonClass: "btn-danger",
-                            confirmButtonText: "Да, удалить",
-                            cancelButtonText: "Отмена",
-                            closeOnConfirm: true,
-                        },
-                        function(){
-                            $.ajax({
-                                type:'POST',
-                                url: '{{ route('xhr.storage.deleteFile') }}',
-                                data:{
-                                    '_token': '{{ csrf_token() }}',
-                                    'id': file.data('id'),
-                                },
-                                dataType: 'json',
-                                success:function(data){
-                                    uploaded_files.splice(uploaded_files.indexOf(file.data('id')),1);
-                                    $('#files').val(JSON.stringify(uploaded_files));
-                                    file.remove();
-                                },
-                                error: function(data){
-                                    swal("Упс!", "Не удалось удалить файл, попробуйте позднее", "warning");
-                                }
-                            });
-
-                        });
                 });
 
                 // DropZone implementation

@@ -144,7 +144,7 @@ class XHRController extends Controller
                     'id'            => $store->id,
                     'name'          => $file->getClientOriginalName(),
                     'size'          => $file->getClientSize(),
-                    'uploaded'      => Date::parse($store->created_at)->format('j F Y H:i:s'),
+                    'uploaded'      => Date::parse($store->created_at)->format('j F Y').' в '.Date::parse($store->created_at)->format('H:i:s'),
                 ];
             }
         }

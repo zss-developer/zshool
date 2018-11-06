@@ -6,7 +6,9 @@ use App\Models\StorageSection;
 use App\Models\Subject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\Controller;use Illuminate\View\View;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\View\View;
 
 class StorageController extends Controller
 {
@@ -38,7 +40,6 @@ class StorageController extends Controller
         $subjects = Subject::all();
 
         if ($request->isMethod('post')) {
-            dd($request->all());
 
             $validator = Validator::make($request->all(), [
                 'header'        => 'required|string|max:191',
@@ -47,8 +48,9 @@ class StorageController extends Controller
                 'description'   => 'nullable',
                 'files'         => 'required',
             ]);
-
+            dd($request->get('files'));
             if ($validator->fails()){
+                if ($request->get)
                 return redirect()->back()->withErrors($validator)->withInput();
 
             }
