@@ -107,9 +107,9 @@
                     </div>
                 @endif
 
-                <div class="form-group row ml-0 mr-0 {{ $errors->has('header') ? 'has-error' : '' }}">
-                    <label class="form-control-label label-required" for="header">Название разработки</label>
-                    <input id="header" type="text" class="form-control {{ $errors->has('header') ? 'form-control-danger' : '' }}" name="header" value="{{ old('header') }}">
+                <div class="form-group row ml-0 mr-0 {{ $errors->has('title') ? 'has-error' : '' }}">
+                    <label class="form-control-label label-required" for="title">Название разработки</label>
+                    <input id="title" type="text" class="form-control {{ $errors->has('title') ? 'form-control-danger' : '' }}" name="title" value="{{ old('title') }}">
                 </div>
 
                 <div class="form-group row ml-0 mr-0 {{ $errors->has('section') ? 'has-error' : '' }}">
@@ -133,8 +133,13 @@
                 </div>
 
                 <div class="form-group row ml-0 mr-0 {{ $errors->has('class') ? 'has-error' : '' }}">
-                    <label class="form-control-label label-required" for="class">Класс</label>
-                    <input id="class" type="text" class="form-control {{ $errors->has('class') ? 'form-control-danger' : '' }}" name="class" value="{{ old('class') }}">
+                    <label class="form-control-label label-required col-md-12" for="class">Класс</label>
+                    <select id="class" name="class" class="form-control col-md-5">
+                        <option value="0" {{ old('class') == 0 ? 'selected' : '' }}>КПП</option>
+                        @for($i=1; $i<=11;$i++)
+                            <option value="{{ $i }}" {{ old('class') == $i ? 'selected' : '' }}>{{ $i }}</option>
+                        @endfor
+                    </select>
                 </div>
 
                 <div class="form-group">
@@ -301,14 +306,13 @@
                     minimumResultsForSearch: Infinity
                 });
 
-
-
                 $('#ks-file-upload-widget-input').fileupload({
                     autoUpload: false,
                     add: function (e, data) {
-
                         $.each(data.files, function (index, file) {
-
+                            /*if(uploaded_files.length == 5) {
+                               swal("Внимание!", "Загрузить можно не более 5-ти файлов", "warning");
+                            }*/
                             var item = {
                                 'name'     :  file.name,
                                 'size'     : file.size,
@@ -317,9 +321,7 @@
                                 'key'      : file.lastModified,
                                 'jqXHR'    : null
                             };
-
                             widget.uploadFile(item);
-
                         });
 
                         data.process().done(function () {
@@ -340,9 +342,6 @@
                                    widget.completeFile(item.lastModified, file);
                                }
                             });
-                            /*if(uploaded_files.length == 5) {
-                                swal("Внимание!", "Загрузить можно не более 5-ти файлов", "warning");
-                            }*/
                         });
                     },
                 });

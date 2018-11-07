@@ -6,6 +6,7 @@ use App\Models\Publication;
 use App\Models\StorageSection;
 use App\Models\Subject;
 use App\Models\TemporaryStore;
+use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
@@ -45,7 +46,7 @@ class StorageController extends Controller
         if ($request->isMethod('post')) {
 
             $validator = Validator::make($request->all(), [
-                'header'        => 'required|string|max:191',
+                'title'        => 'required|string|max:191',
                 'section'       => 'required|exists:storage_sections,id',
                 'subject'       => 'required|exists:subjects,id',
                 'class'         => 'required|numeric|between:0,11',
@@ -58,18 +59,37 @@ class StorageController extends Controller
                     return redirect()->back()->withErrors($validator)->withInput()->with('files', TemporaryStore::whereIn('id', $request->input('files'))->get());
                 }
                 return redirect()->back()->withErrors($validator)->withInput();
-
             }
 
             $publication = new Publication();
 
-            $publication->title = $request->get('title');
-            $publication->author_id = Auth::user()->id;
-            $publication->section_id = $request->get('section');
-            $publication->subject_id = $request->get('subject');
-            $publication->class = $request->get('c');
-            $publication->title = $request->get('title');
+            $publication->title         = $request->get('title');
+            $publication->author_id     = Auth::user()->id;
+            $publication->section_id    = $request->get('section');
+            $publication->subject_id    = $request->get('subject');
+            $publication->class         = $request->get('class');
+            $publication->description   = $request->get('description');
+            $publication->published     = 0;
 
+            if ($publication->save()) {
+                $files = TemporaryStore::whereIn('id', $request->input('files'))->get();
+                foreach ($files as $file) {
+                    $store  = new Store;
+
+                    $store->name = $file->name;
+                    $store->mime = $file->mime;
+                    $store->path = $file->path;
+
+                    $store->owner_id = $publication->id;
+                    $store->owner_type = 'App\Models\Publication';
+
+                    if($store->save()) {
+                        $file->delete();
+                    }
+                }
+
+                return redirect()->route('storage.index', $this->storage_sections->keyBy('id')[$request->get('section')]->code);
+            }
         }
 
         return response()->view('pages.frontend.storage.upload', [

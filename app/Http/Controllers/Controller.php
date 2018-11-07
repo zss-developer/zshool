@@ -13,10 +13,12 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
+    protected $storage_sections;
+
     public function __construct()
     {
-        $storage_sections = StorageSection::all();
+        $this->storage_sections = StorageSection::all();
 
-        View::share('storage_sections', $storage_sections);
+        View::share('storage_sections', $this->storage_sections);
     }
 }

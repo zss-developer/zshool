@@ -63,14 +63,14 @@
                 </div>
                 <div class="form-group mb-0">
                     <div class="class">
-                        <input type="radio" id="all" value="all" name="class" checked>
+                        <input type="radio" id="all" value="" name="class" checked>
                         <label for="all" class="badge badge-primary badge-pill"> Все классы </label>
                         <div class="line-break"></div>
-                        <input type="radio" id="kpp" value="kpp" name="class">
+                        <input type="radio" id="kpp" value="0" name="class">
                         <label for="kpp" class="badge badge-primary badge-pill"> КПП </label>
                         @for($i=1; $i<=11;$i++)
-                            <input type="radio" id="{{ "class $i" }}" value="{{ $i }}" name="class">
-                            <label for="{{ "class $i" }}" class="badge badge-primary badge-pill"> {{ "$i класс" }}</label>
+                            <input type="radio" id="{{ "class-$i" }}" value="{{ $i }}" name="class">
+                            <label for="{{ "class-$i" }}" class="badge badge-primary badge-pill"> {{ "$i класс" }}</label>
                         @endfor
                     </div>
                 </div>

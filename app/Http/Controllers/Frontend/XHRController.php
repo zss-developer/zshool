@@ -101,6 +101,9 @@ class XHRController extends Controller
                 $store->mime = $saved['mime'];
                 $store->path = $saved['path'];
 
+                $store->owner_id = $user->id;
+                $store->owner_type = 'App\Models\User';
+
                 if($store->save()) {
 
                     $user->image_id = $store->id;
