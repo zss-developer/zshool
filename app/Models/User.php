@@ -52,11 +52,11 @@ class User extends Authenticatable
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
      */
     public function avatar()
     {
-        return $this->belongsTo('App\Models\Store', 'image_id', 'id');
+        return $this->morphOne('App\Models\Store', 'owner');
     }
 
     /**

@@ -109,12 +109,12 @@
 
                 <div class="form-group row ml-0 mr-0 {{ $errors->has('header') ? 'has-error' : '' }}">
                     <label class="form-control-label label-required" for="header">Название разработки</label>
-                    <input type="text" class="form-control {{ $errors->has('header') ? 'form-control-danger' : '' }}" name="header" value="{{ old('header') }}">
+                    <input id="header" type="text" class="form-control {{ $errors->has('header') ? 'form-control-danger' : '' }}" name="header" value="{{ old('header') }}">
                 </div>
 
                 <div class="form-group row ml-0 mr-0 {{ $errors->has('section') ? 'has-error' : '' }}">
                     <label class="form-control-label label-required col-md-12" for="section">Тип разработки</label>
-                    <select name="section" class="form-control col-md-5">
+                    <select id="section" name="section" class="form-control col-md-5">
                         <option value="">Выберите тип разработки...</option>
                         @foreach($storage_sections as $item)
                             <option value="{{ $item->id }}" {{ old('section') == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
@@ -124,12 +124,17 @@
 
                 <div class="form-group row ml-0 mr-0 {{ $errors->has('subject') ? 'has-error' : '' }}">
                     <label class="form-control-label label-required col-md-12" for="subject">Предмет</label>
-                    <select name="subject" class="form-control col-md-5">
+                    <select id="subject" name="subject" class="form-control col-md-5">
                         <option value="">Выберите предмет...</option>
                         @foreach($subjects as $item)
                             <option value="{{ $item->id }}" {{ old('subject') == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
                         @endforeach
                     </select>
+                </div>
+
+                <div class="form-group row ml-0 mr-0 {{ $errors->has('class') ? 'has-error' : '' }}">
+                    <label class="form-control-label label-required" for="class">Класс</label>
+                    <input id="class" type="text" class="form-control {{ $errors->has('class') ? 'form-control-danger' : '' }}" name="class" value="{{ old('class') }}">
                 </div>
 
                 <div class="form-group">
@@ -172,7 +177,7 @@
            el: '.ks-page-content',
            data: {
                uploading_files: [],
-               uploaded_files: [],
+               uploaded_files: {!! session('files') ? json_encode(session('files')) : '[]'  !!},
            },
             watch: {
                uploaded_files: function () {

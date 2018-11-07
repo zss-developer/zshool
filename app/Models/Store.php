@@ -30,4 +30,12 @@ class Store extends Model
 	public function createStore($input) {
         return $this->insertGetId($input);
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
+    public function owner()
+    {
+        return $this->morphTo();
+    }
 }

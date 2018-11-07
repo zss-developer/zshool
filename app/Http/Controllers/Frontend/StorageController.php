@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Frontend;
 
+use App\Models\Publication;
 use App\Models\StorageSection;
 use App\Models\Subject;
+use App\Models\TemporaryStore;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
@@ -37,6 +39,7 @@ class StorageController extends Controller
 
     public function storageUpload(Request $request)
     {
+        $this->middleware('auth');
         $subjects = Subject::all();
 
         if ($request->isMethod('post')) {
@@ -45,15 +48,27 @@ class StorageController extends Controller
                 'header'        => 'required|string|max:191',
                 'section'       => 'required|exists:storage_sections,id',
                 'subject'       => 'required|exists:subjects,id',
+                'class'         => 'required|numeric|between:0,11',
                 'description'   => 'nullable',
-                'files'         => 'required',
+                'files'         => 'required|array|between:1,5',
+                'files.*'       => 'required|exists:temporary_files,id,user_id,'.Auth::user()->id,
             ]);
-            dd($request->get('files'));
             if ($validator->fails()){
-                if ($request->get)
+                if ($request->get('files')) {
+                    return redirect()->back()->withErrors($validator)->withInput()->with('files', TemporaryStore::whereIn('id', $request->input('files'))->get());
+                }
                 return redirect()->back()->withErrors($validator)->withInput();
 
             }
+
+            $publication = new Publication();
+
+            $publication->title = $request->get('title');
+            $publication->author_id = Auth::user()->id;
+            $publication->section_id = $request->get('section');
+            $publication->subject_id = $request->get('subject');
+            $publication->class = $request->get('c');
+            $publication->title = $request->get('title');
 
         }
 

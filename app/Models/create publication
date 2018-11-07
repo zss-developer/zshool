@@ -1,0 +1,13 @@
+CREATE TABLE `publications` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(191) NOT NULL DEFAULT '',
+  `author_id` int(11) NOT NULL,
+  `section_id` int(11) NOT NULL,
+  `subject_id` int(11) NOT NULL,
+  `class` int(11) NOT NULL,
+  `description` text,
+  `published` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
