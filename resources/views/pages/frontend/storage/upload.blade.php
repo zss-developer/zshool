@@ -109,7 +109,7 @@
 
                 <div class="form-group row ml-0 mr-0 {{ $errors->has('title') ? 'has-error' : '' }}">
                     <label class="form-control-label label-required" for="title">Название разработки</label>
-                    <input id="title" type="text" class="form-control {{ $errors->has('title') ? 'form-control-danger' : '' }}" name="title" value="{{ old('title') }}">
+                    <input id="title" type="text" class="form-control {{ $errors->has('title') ? 'form-control-danger' : '' }}" name="title" value="{{ old('title   ') }}">
                 </div>
 
                 <div class="form-group row ml-0 mr-0 {{ $errors->has('section') ? 'has-error' : '' }}">

@@ -18,4 +18,8 @@ return  [
             'picture' => '/img/picture.jpg',
         ],
     ],
+
+    'storage' => [
+        'publications_per_page' => 1,
+    ],
 ];

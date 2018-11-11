@@ -30,17 +30,33 @@ class StorageController extends Controller
         $section  = StorageSection::where('code', $code)->firstOrFail();
         $subjects = Subject::all();
 
+        $publications = Publication::where('section_id', $section->id)
+            ->orderByDesc('created_at')
+            ->with('author')
+            ->paginate(config('settings.storage.publications_per_page'));
+
 
         return response()->view('pages.frontend.storage.index', [
-            'section' => $section,
-            'subjects' => $subjects,
+            'section'       => $section,
+            'subjects'      => $subjects,
+            'publications'  => $publications,
+        ]);
+    }
+
+    public function storageView(Request $request,$code, $id)
+    {
+        $section  = StorageSection::where('code', $code)->firstOrFail();
+        $publication = Publication::where('id', $id)->with('author')->firstOrFail();
+
+        return response()->view('pages.frontend.storage.view', [
+            'section'       => $section,
+            'publication'  => $publication,
         ]);
 
     }
 
     public function storageUpload(Request $request)
     {
-        $this->middleware('auth');
         $subjects = Subject::all();
 
         if ($request->isMethod('post')) {

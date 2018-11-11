@@ -2,14 +2,12 @@
 <div class="ks-column ks-sidebar ks-info">
     <div class="ks-wrapper">
         <ul class="nav nav-pills nav-stacked">
-            @if(auth()->check())
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('storage.upload') }}">
-                        <span class="ks-icon la la-cloud-upload"></span>
-                        <span>Загрузить метериалы</span>
-                    </a>
-                </li>
-            @endif
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('storage.upload') }}">
+                    <span class="ks-icon la la-cloud-upload"></span>
+                    <span>Загрузить метериалы</span>
+                </a>
+            </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">
                     <span class="ks-icon la la-trophy"></span>

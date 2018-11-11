@@ -22,11 +22,35 @@
         }
         .class label {
             margin: 0 2px 5px;
+            cursor: pointer;
         }
         .class input:checked+label{
             background-color: #7cafd4;
             border-color: #7cafd4;
             color: #000;
+        }
+        .publication {
+            padding-left: 20px;
+        }
+        .publication:hover {
+            background-color: #ebeef5;
+        }
+        .publication .ks-icon {
+            font-size: 46px;
+            margin: 0 auto;
+            padding: 15px 0;
+        }
+        .publication .card-title{
+            color: #21577f;
+            font-weight: bold;
+        }
+        .publication .info {
+            text-align: right;
+            color:#979797;
+        }
+        .publication .info i {
+            margin-left: 10px;
+            font-weight: bold;
         }
     </style>
 @endpush
@@ -77,7 +101,33 @@
             </div>
 
             <div class="card-block">
-                <h3>Еще нет материалов для отображения</h3>
+                @if($publications->count())
+                    @foreach($publications as $publication)
+                        <a href="{{ route('storage.view', [$section->code, $publication->id]) }}" class="card publication">
+                            <div class="row">
+                                <div class="col-md-1 ks-text-center">
+                                    <span class="ks-icon la la-file-o ks-color-danger"></span>
+                                </div>
+                                <div class="card-block col-md-10">
+                                    <h5 class="card-title mb-1">{{ $publication->title }}</h5>
+                                    <p class="card-text">{{ strlen($publication->description)>200 ? mb_substr($publication->description,0,200).'...' : $publication->description}}</p>
+                                    <div class="info">
+                                        <i class="la la-clock-o"></i> {{ $publication->created_at }}
+                                        <i class="la la-user"></i>{{ $publication->author->full_name }}
+                                        <i class="la la-eye"></i>10
+                                        <i class="la la-download"></i>0
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    @endforeach
+                    <div class="text-center">
+                        {{ $publications->render() }}
+                    </div>
+
+                @else
+                    <h3>Еще нет материалов для отображения</h3>
+                @endif
             </div>
         </div>
     </div>
