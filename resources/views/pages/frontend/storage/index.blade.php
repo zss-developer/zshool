@@ -52,6 +52,11 @@
             margin-left: 10px;
             font-weight: bold;
         }
+        .pagination {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
     </style>
 @endpush
 
@@ -121,9 +126,7 @@
                             </div>
                         </a>
                     @endforeach
-                    <div class="text-center">
                         {{ $publications->render() }}
-                    </div>
 
                 @else
                     <h3>Еще нет материалов для отображения</h3>

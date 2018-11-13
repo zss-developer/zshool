@@ -20,6 +20,6 @@ return  [
     ],
 
     'storage' => [
-        'publications_per_page' => 1,
+        'publications_per_page' => 10,
     ],
 ];
