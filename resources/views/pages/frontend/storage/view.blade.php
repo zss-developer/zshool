@@ -1,8 +1,6 @@
 @extends('layouts.common')
 
 @push('styles')
-    <link rel="stylesheet" type="text/css" href="{{ asset('libs/sweetalert/sweetalert.css') }}"> <!-- original -->
-    <link rel="stylesheet" type="text/css" href="{{ asset('/libs/sweetalert/sweetalert.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('/css/styles/apps/file-manager.min.css') }}">
     <style>
         .card {
@@ -15,6 +13,9 @@
             padding: 10px 40px;
             display: flex;
             justify-content: space-between;
+        }
+        .alert {
+            margin: 10px 40px;
         }
     </style>
 @endpush
@@ -71,6 +72,19 @@
                     </div>
                 </div>
             </div>
+            @if (count($errors) > 0)
+                <div class="alert alert-danger ks-active-border" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true" class="la la-close"></span>
+                    </button>
+                    <h5 class="alert-heading">Ошибка</h5>
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
             <div class="service">
                 <div class="about">
                     Предмет<br>
@@ -78,7 +92,7 @@
                     Целевая аудитория
                 </div>
                 <div class="download">
-                    <a href="{{ route('storage.download', ['id' => $publication->id]) }}" class="btn btn-primary download">Скачать одним архивом</a>
+                    <a href="{{ route('storage.download', ['id' => 3]) }}" class="btn btn-primary download">Скачать одним архивом</a>
                 </div>
                 <div class="author">
                     Автор<br>
@@ -90,27 +104,5 @@
 @endsection
 
 @push('scripts')
-    <script src="{{asset('/libs/sweetalert/sweetalert.min.js')}}"></script>
-    <script type="application/javascript">
-        (function ($) {
-            $(document).ready(function() {
-                $('.download').on('click', function (e) {
-                    /*$.ajax({
-                        url: '',
-                        data:{
-                            'id': '',
-                        },
-                        dataType: 'json',
-                    }).done(function(data) {
-                        console.log(data);
-                    })
-                    .fail(function(data) {
-                        if(data.responseJSON && data.responseJSON.message) {
-                            swal("Упс!", data.responseJSON.message.id, "warning");
-                        }
-                    });*/
-                });
-            });
-        })(jQuery);
-    </script>
+
 @endpush

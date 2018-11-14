@@ -13,7 +13,7 @@ if(!function_exists('store')) {
 
         $original = $file->getClientOriginalName();
         $mime     = $file->getClientMimeType();
-        $name  	  = pathinfo($original, PATHINFO_FILENAME);
+        $name  	  = $original;
 
         $store    = $file->store($path, 'public');
 

@@ -121,36 +121,38 @@ class StorageController extends Controller
             'id' => 'required|exists:publications,id',
         ]);
 
-        if ($validator->fails()) return response()->json(['status' => 'error', 'message' => $validator->messages()], config('settings.xhr.code.error'));
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator);
+        }
 
         $publication = Publication::where('id', $request->get('id'))->with('files')->first();
 
         if(extension_loaded('zip')) {
             $zip = new ZipArchive();
 
-            $zip_name = '/storage/files/temporary/'.str2url($publication->title).".zip"; // имя файла
-            if($zip->open($zip_name, ZIPARCHIVE::CREATE)!==TRUE) {
-                //$error .= "* Sorry ZIP creation failed at this time";
+            $zip_name = str2url($publication->title).".zip"; // имя файла
+            $path = 'storage/storage/fileы/temporary/';
+
+            if($zip->open($path.$zip_name, ZIPARCHIVE::CREATE)!==true) {
+                return redirect()->back()->withErrors(['message' => 'Не удалось создать архив, попробуйте позже']);
             }
 
             foreach ($publication->files as $file) {
-                $zip->addFile($file->path);
+                $zip->addFile(storage_path('app/public/' . $file->path), $file->name);
             }
 
             $zip->close();
-            if(file_exists($zip_name)) {
-                // отдаём файл на скачивание
+
+            if(file_exists($path.$zip_name)) {
+
                 header('Content-type: application/zip');
                 header('Content-Disposition: attachment; filename="'.$zip_name.'"');
-                readfile($zip_name);
-                // удаляем zip файл если он существует
-                //unlink($zip_name);
+                readfile($path.$zip_name);
+
+                unlink($path.$zip_name);
             }
         }
-        else
-            //$error .= "* You dont have ZIP extension";
-
-        return response()->json(['status' => 'success', 'message' =>'file'], config('settings.xhr.code.success'));
+        return redirect()->back()->withErrors(['message' => 'Не удалось загрузить расширение ZIP, пожалуйста, обратитесь  к администратору']);
     }
 
 }
