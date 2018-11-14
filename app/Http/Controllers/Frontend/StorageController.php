@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
+use ZipArchive;
 
 class StorageController extends Controller
 {
@@ -112,4 +113,44 @@ class StorageController extends Controller
             'subjects' => $subjects,
         ]);
     }
+
+    public function downloadArchive(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|exists:publications,id',
+        ]);
+
+        if ($validator->fails()) return response()->json(['status' => 'error', 'message' => $validator->messages()], config('settings.xhr.code.error'));
+
+        $publication = Publication::where('id', $request->get('id'))->with('files')->first();
+
+        if(extension_loaded('zip')) {
+            $zip = new ZipArchive();
+
+            $zip_name = '/storage/files/temporary/'.str2url($publication->title).".zip"; // имя файла
+            if($zip->open($zip_name, ZIPARCHIVE::CREATE)!==TRUE) {
+                //$error .= "* Sorry ZIP creation failed at this time";
+            }
+
+            foreach ($publication->files as $file) {
+                $zip->addFile($file->path);
+            }
+
+            $zip->close();
+            if(file_exists($zip_name)) {
+                // отдаём файл на скачивание
+                header('Content-type: application/zip');
+                header('Content-Disposition: attachment; filename="'.$zip_name.'"');
+                readfile($zip_name);
+                // удаляем zip файл если он существует
+                //unlink($zip_name);
+            }
+        }
+        else
+            //$error .= "* You dont have ZIP extension";
+
+        return response()->json(['status' => 'success', 'message' =>'file'], config('settings.xhr.code.success'));
+    }
+
 }

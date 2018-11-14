@@ -1,6 +1,8 @@
 @extends('layouts.common')
 
 @push('styles')
+    <link rel="stylesheet" type="text/css" href="{{ asset('libs/sweetalert/sweetalert.css') }}"> <!-- original -->
+    <link rel="stylesheet" type="text/css" href="{{ asset('/libs/sweetalert/sweetalert.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('/css/styles/apps/file-manager.min.css') }}">
     <style>
         .card {
@@ -76,7 +78,7 @@
                     Целевая аудитория
                 </div>
                 <div class="download">
-                    Скачать
+                    <a href="{{ route('storage.download', ['id' => $publication->id]) }}" class="btn btn-primary download">Скачать одним архивом</a>
                 </div>
                 <div class="author">
                     Автор<br>
@@ -88,5 +90,27 @@
 @endsection
 
 @push('scripts')
-
+    <script src="{{asset('/libs/sweetalert/sweetalert.min.js')}}"></script>
+    <script type="application/javascript">
+        (function ($) {
+            $(document).ready(function() {
+                $('.download').on('click', function (e) {
+                    /*$.ajax({
+                        url: '',
+                        data:{
+                            'id': '',
+                        },
+                        dataType: 'json',
+                    }).done(function(data) {
+                        console.log(data);
+                    })
+                    .fail(function(data) {
+                        if(data.responseJSON && data.responseJSON.message) {
+                            swal("Упс!", data.responseJSON.message.id, "warning");
+                        }
+                    });*/
+                });
+            });
+        })(jQuery);
+    </script>
 @endpush

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Frontend;
 
+use App\Models\Publication;
 use App\Models\Store;
 use App\Models\TemporaryStore;
 use App\Models\User;
@@ -160,6 +161,11 @@ class XHRController extends Controller
 
     public function deleteFile(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|exists:temporary_files,id',
+        ]);
+
+        if ($validator->fails()) return response()->json(['status' => 'error', 'messages' => $validator->messages()], config('settings.xhr.code.error'));
 
        $file = TemporaryStore::where('id',$request->get('id'))
            ->where('user_id', Auth::user()->id)
