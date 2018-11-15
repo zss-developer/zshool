@@ -20,6 +20,11 @@ Route::prefix('/')->middleware(['web'])->group( function () {
     require (__DIR__ . '/common/auth.php');
 });
 
+
+Route::prefix('/')->namespace('Admin')->middleware(['web'])->group( function () {
+    require (__DIR__ . '/admin/service.php');
+});
+
 /**
  * Public routes
  * Namespaces indicate folder structure

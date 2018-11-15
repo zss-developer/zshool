@@ -123,7 +123,7 @@ class XHRController extends Controller
         $user   = Auth::user();
 
         $validator = Validator::make($request->all(), [
-            'files.*' => 'required|max:10000',
+            'files.*' => 'required|max:10000|mimes:txt,doc,docx,ppt,pptx,xls,xlsx,zip,rar,flipchart,flp,pdf'
         ]);
 
         if ($validator->fails()) return response()->json(['status' => 'error', 'messages' => $validator->messages()], config('settings.xhr.code.error'));

@@ -131,7 +131,7 @@ class StorageController extends Controller
             $zip = new ZipArchive();
 
             $zip_name = str2url($publication->title).".zip"; // имя файла
-            $path = 'storage/storage/fileы/temporary/';
+            $path = 'storage/storage/files/temporary/';
 
             if($zip->open($path.$zip_name, ZIPARCHIVE::CREATE)!==true) {
                 return redirect()->back()->withErrors(['message' => 'Не удалось создать архив, попробуйте позже']);
