@@ -71,4 +71,23 @@ if(!function_exists('store')) {
         }
     }
 
+    if(!function_exists('mimeToIcon')) {
+        function mimeToIcon($mime) {
+            $mimes = [
+                'text/plain'  => 'la-file-text-o text-info',
+                'application/msword'  => 'la-file-word-o text-primary',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'  => 'la-file-word-o text-primary',
+                'application/vnd.ms-powerpoint'  => 'la-file-powerpoint-o text-warning',
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation'  => 'la-file-powerpoint-o text-warning',
+                'application/vnd.ms-excel'  => 'la-file-excel-o text-success',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'  => 'la-file-excel-o text-success',
+                'application/octet-stream'  => 'la-file-archive-o ks-color-brown',
+                'application/x-zip-compressed'  => 'la-file-archive-o ks-color-brown',
+                'application/pdf'  => 'la-file-pdf-o text-danger',
+            ];
+
+            return (array_key_exists($mime, $mimes) !== false ? $mimes[$mime] : 'la-file-o ks-color-info');
+        }
+    }
+
 }

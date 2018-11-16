@@ -51,35 +51,12 @@
                     </div>
                     <div class="ks-content pt-0 pb-0">
                         <ul class="ks-items">
-                            <li class="ks-item ks-item-file">
-                                <span class="ks-thumb la la-file-text-o text-info"></span>
-                                <span class="ks-filename">File.txt</span>
-                            </li>
-                            <li class="ks-item ks-item-file">
-                                <span class="ks-thumb la la-file-word-o text-primary"></span>
-                                <span class="ks-filename">File.doc</span>
-                            </li>
-                            <li class="ks-item ks-item-file">
-                                <span class="ks-thumb la la-file-powerpoint-o text-warning"></span>
-                                <span class="ks-filename">File.ppt</span>
-                            </li>
-                            <li class="ks-item ks-item-file">
-                                <span class="ks-thumb la la-file-excel-o text-success"></span>
-                                <span class="ks-filename">File.xls</span>
-                            </li>
-                            <li class="ks-item ks-item-file">
-                                <span class="ks-thumb la la-file-archive-o ks-color-brown"></span>
-                                <span class="ks-filename">File.zip</span>
-                            </li>
-                            <li class="ks-item ks-item-file">
-                                <span class="ks-thumb la la-file-code-o ks-color-purple"></span>
-                                <span class="ks-filename">File.flipchart</span>
-                            </li>
-                            <li class="ks-item ks-item-file">
-                                <span class="ks-thumb la la-file-pdf-o text-danger"></span>
-                                <span class="ks-filename">File.pdf</span>
-                            </li>
-
+                            @foreach($publication->files as $file)
+                                <li class="ks-item ks-item-file">
+                                    <span class="ks-thumb la {{ mimeToIcon($file->mime) }}"></span>
+                                    <span class="ks-filename">{{ $file->name }}</span>
+                                </li>
+                            @endforeach
                         </ul>
                     </div>
                 </div>

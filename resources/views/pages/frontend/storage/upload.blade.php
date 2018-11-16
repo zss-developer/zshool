@@ -11,6 +11,13 @@
         .textarea {
             z-index: 100;
         }
+        .card-header {
+            flex-direction: column;
+        }
+        .card-header em {
+            color: #858585;
+            padding: 3px 0;
+        }
     </style>
 @endpush
 
@@ -34,7 +41,13 @@
             <form class="ks-form container-fluid pb-0">
                 <div class="form-group">
                     <div id="ks-attach-files-widget" class="card panel ks-attach-files-widget">
-                        <h5 class="card-header">Прикрепленные файлы</h5>
+                        <div class="card-header">
+                            <h4>Прикрепленные файлы</h4>
+                            <em>Доступные для загрузки расширения: rar,zip,txt,pdf,doc,ppt,xls,pptx,docx,xlsx</em>
+                            <em>Медиафайлы(Изображения, музыку, видеоклипы, флипчарты) необходимо упаковать в архив</em>
+                            <em>Не более 5-ти файлов размером до 10М</em>
+                        </div>
+
                         <div class="card-block">
                             <ul class="ks-uploading-files">
                                 <li :id="'file-uploading-' + index" v-for="(file,index) in uploading_files">
@@ -59,7 +72,7 @@
                             </ul>
                             <ul class="ks-uploaded-files">
                                 <li :id="'file-uploaded-' + index" v-for="(file,index) in uploaded_files">
-                                    <span class="ks-icon la la-file-o ks-color-danger"></span>
+                                    <span class="ks-icon la" :class="file.icon"></span>
                                     <div class="ks-body">
                                         <div class="ks-header">
                                             <span class="ks-filename">@{{ file.name }}</span>
@@ -310,9 +323,10 @@
                     autoUpload: false,
                     add: function (e, data) {
                         $.each(data.files, function (index, file) {
-                            /*if(uploaded_files.length == 5) {
+                            if(widget.uploaded_files.length + widget.uploading_files.length >= 5) {
                                swal("Внимание!", "Загрузить можно не более 5-ти файлов", "warning");
-                            }*/
+                               return false
+                            }
                             var item = {
                                 'name'     :  file.name,
                                 'size'     : file.size,

@@ -23,11 +23,18 @@ class TemporaryStore extends Model
      */
     protected $hidden = ['created_at', 'updated_at'];
 
+    protected $appends = ['icon'];
+
 	/**
 	 * @param $input
 	 * @return mixed
 	 */
 	public function createStore($input) {
         return $this->insertGetId($input);
+    }
+
+    public function getIconAttribute()
+    {
+        return mimeToIcon($this->mime);
     }
 }

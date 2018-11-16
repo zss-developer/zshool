@@ -123,7 +123,7 @@ class XHRController extends Controller
         $user   = Auth::user();
 
         $validator = Validator::make($request->all(), [
-            'files.*' => 'required|max:10000|mimes:txt,doc,docx,ppt,pptx,xls,xlsx,zip,rar,flipchart,flp,pdf'
+            'files.*' => 'required|max:10000|mimes:txt,doc,docx,ppt,pptx,xls,xlsx,zip,rar,pdf'
         ]);
 
         if ($validator->fails()) return response()->json(['status' => 'error', 'messages' => $validator->messages()], config('settings.xhr.code.error'));
@@ -145,10 +145,11 @@ class XHRController extends Controller
             if($store->save()) {
                 Date::setLocale('ru');
                 $result[] = [
-                    'id'            => $store->id,
-                    'name'          => $file->getClientOriginalName(),
-                    'size'          => $file->getClientSize(),
-                    'uploaded'      => Date::parse($store->created_at)->format('j F Y').' в '.Date::parse($store->created_at)->format('H:i:s'),
+                    'id'       => $store->id,
+                    'name'     => $file->getClientOriginalName(),
+                    'icon'     => mimeToIcon($store->mime),
+                    'size'     => $file->getClientSize(),
+                    'uploaded' => Date::parse($store->created_at)->format('j F Y').' в '.Date::parse($store->created_at)->format('H:i:s'),
                 ];
             }
         }
