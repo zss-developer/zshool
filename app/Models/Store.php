@@ -23,6 +23,8 @@ class Store extends Model
      */
     protected $hidden = ['created_at', 'updated_at'];
 
+
+    protected $appends = ['icon'];
 	/**
 	 * @param $input
 	 * @return mixed
@@ -37,5 +39,10 @@ class Store extends Model
     public function owner()
     {
         return $this->morphTo();
+    }
+
+    public function getIconAttribute()
+    {
+        return mimeToIcon($this->mime);
     }
 }

@@ -53,7 +53,7 @@
                         <ul class="ks-items">
                             @foreach($publication->files as $file)
                                 <li class="ks-item ks-item-file">
-                                    <span class="ks-thumb la {{ mimeToIcon($file->mime) }}"></span>
+                                    <span class="ks-thumb la {{ $file->icon }}"></span>
                                     <span class="ks-filename">{{ $file->name }}</span>
                                 </li>
                             @endforeach

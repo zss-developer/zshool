@@ -14,7 +14,7 @@ class Publication extends Model
      *
      * @var array
      */
-    protected $fillable = ['title', 'author_id', 'section_id', 'subject_id', 'class', 'description', 'published'];
+    protected $fillable = ['title', 'author_id', 'section_id', 'subject_id', 'class', 'description', 'published', 'view', 'download'];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -53,6 +53,14 @@ class Publication extends Model
     public function files()
     {
         return $this->morphMany('App\Models\Store', 'owner');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
+     */
+    public function first_file()
+    {
+        return $this->morphOne('App\Models\Store', 'owner');
     }
 
 }

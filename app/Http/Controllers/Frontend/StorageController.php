@@ -33,9 +33,8 @@ class StorageController extends Controller
 
         $publications = Publication::where('section_id', $section->id)
             ->orderByDesc('created_at')
-            ->with('author')
+            ->with(['author', 'first_file'])
             ->paginate(config('settings.storage.publications_per_page'));
-
 
         return response()->view('pages.frontend.storage.index', [
             'section'       => $section,
@@ -48,6 +47,10 @@ class StorageController extends Controller
     {
         $section  = StorageSection::where('code', $code)->firstOrFail();
         $publication = Publication::where('id', $id)->with('author')->firstOrFail();
+
+        // todo: Проверить уникальность IP
+        $publication->view++;
+        $publication->save();
 
         return response()->view('pages.frontend.storage.view', [
             'section'       => $section,
@@ -144,6 +147,9 @@ class StorageController extends Controller
             $zip->close();
 
             if(file_exists($path.$zip_name)) {
+
+                $publication->download++;
+                $publication->save();
 
                 header('Content-type: application/zip');
                 header('Content-Disposition: attachment; filename="'.$zip_name.'"');

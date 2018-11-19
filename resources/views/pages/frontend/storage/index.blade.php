@@ -111,7 +111,7 @@
                         <a href="{{ route('storage.view', [$section->code, $publication->id]) }}" class="card publication">
                             <div class="row">
                                 <div class="col-md-1 ks-text-center">
-                                    <span class="ks-icon la la-file-o ks-color-danger"></span>
+                                    <span class="ks-icon la {{ $publication->first_file->icon }}"></span>
                                 </div>
                                 <div class="card-block col-md-10">
                                     <h5 class="card-title mb-1">{{ $publication->title }}</h5>
@@ -119,8 +119,8 @@
                                     <div class="info">
                                         <i class="la la-clock-o"></i> {{ $publication->created_at }}
                                         <i class="la la-user"></i>{{ $publication->author->full_name }}
-                                        <i class="la la-eye"></i>10
-                                        <i class="la la-download"></i>0
+                                        <i class="la la-eye"></i>{{ $publication->view }}
+                                        <i class="la la-download"></i>{{ $publication->download }}
                                     </div>
                                 </div>
                             </div>

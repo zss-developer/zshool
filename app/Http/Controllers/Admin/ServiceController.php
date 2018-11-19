@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Store;
 use App\Models\TemporaryStore;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -27,7 +28,10 @@ class ServiceController extends Controller
 
     public function createSymlink(Request $request)
     {
-
+        //$file = Store::first();
+        //dd(storage_path('app/public/'.$file->path));
+        symlink('/home/vagrant/Bucket/zshool/backend/storage/app/public', '/home/vagrant/Bucket/zshool/backend/public/storage');
+        dd('test');
     }
 
 }
