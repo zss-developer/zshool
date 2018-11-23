@@ -1,7 +1,6 @@
 @if(auth()->check())
     <div class="nav-item dropdown user">
         <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="{{route('user.index')}}" role="button" aria-haspopup="true" aria-expanded="false">
-            {!! dd(Auth::user()->avatar) !!}
             <span class="ks-avatar {{(Auth::user()->online) ? 'ks-online' : 'ks-offline'}}">
                 <img src="{{ Auth::user()->picture }}" width="36" height="36">
             </span>
