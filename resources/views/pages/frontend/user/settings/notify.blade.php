@@ -62,11 +62,11 @@
         new Vue({
             el:"#ks-accordion",
             data: {
-                notifications: {!! json_encode($user->notifications) !!}
+                notifications: {!! $user->notifications ? json_encode($user->notifications) : '[]'!!}
             },
             computed:{
                 notify_count: function () {
-                    return this.notifications.length;
+                    return this.notifications ? this.notifications.length : 0;
                 }
             }
         });

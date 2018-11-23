@@ -51,12 +51,13 @@ class User extends Authenticatable
         return $this->hasOne('App\Models\Location', 'id', 'location_id');
     }
 
+
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function avatar()
     {
-        return $this->morphOne('App\Models\Store', 'owner');
+        return $this->morphMany('App\Models\Store', 'owner')->where('id', $this->image_id);
     }
 
     /**
@@ -84,7 +85,7 @@ class User extends Authenticatable
         if(!$this->image_id) {
             return asset(config('settings.user.default.picture'));
         }
-        return ($this->avatar) ? asset('storage/' . $this->avatar->path) : asset(config('settings.user.default.picture'));
+        return ($this->avatar) ? asset('storage/' . $this->avatar->first()->path) : asset(config('settings.user.default.picture'));
     }
 
     /**

@@ -32,6 +32,7 @@ class StorageController extends Controller
         $subjects = Subject::all();
 
         $publications = Publication::where('section_id', $section->id)
+            ->where('published', 1)
             ->orderByDesc('created_at')
             ->with(['author', 'first_file'])
             ->paginate(config('settings.storage.publications_per_page'));
@@ -89,7 +90,7 @@ class StorageController extends Controller
             $publication->subject_id    = $request->get('subject');
             $publication->class         = $request->get('class');
             $publication->description   = $request->get('description');
-            $publication->published     = 0;
+            $publication->published     = 1;
 
             if ($publication->save()) {
                 $files = TemporaryStore::whereIn('id', $request->input('files'))->get();
